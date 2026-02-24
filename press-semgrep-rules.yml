@@ -137,3 +137,17 @@ rules:
         - https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#retrying-a-task-until-a-condition-is-met
         - https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-community-changelogs
 
+  - id: non-actionable-error-message
+    patterns:
+      - pattern-either:
+          - pattern: frappe.throw("$MSG")
+          - pattern: new Error("$MSG")
+          - pattern: toast.error("$MSG")
+      - metavariable-regex:
+          metavariable: $MSG
+          # Matches strings that do NOT have a second sentence (no period + space)
+          # and do NOT contain common instructional keywords.
+          regex: '^(?![^.]*\. [A-Z])(?!.*(try|please|check|contact|ensure|use|click|refer)).*$'
+    message: 'This error message is a single sentence and lacks user instructions. High-quality errors should explain what happened and how to fix it.'
+    languages: [javascript, typescript, python]
+    severity: WARNING
