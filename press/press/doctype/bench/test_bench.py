@@ -42,6 +42,7 @@ from press.press.doctype.subscription.test_subscription import create_test_subsc
 from press.press.doctype.version_upgrade.test_version_upgrade import (
 	create_test_version_upgrade,
 )
+from press.runner import Ansible
 from press.utils import get_current_team
 from press.utils.test import foreground_enqueue, foreground_enqueue_doc
 
@@ -71,6 +72,7 @@ class TestStagingSite(FrappeTestCase):
 
 
 @patch.object(AgentJob, "after_insert", new=Mock())
+@patch.object(Ansible, "run", new=MagicMock)
 @patch("press.press.doctype.server.server.frappe.enqueue_doc", new=foreground_enqueue_doc)
 @patch("press.press.doctype.server.server.frappe.db.commit", new=MagicMock)
 @patch("press.press.doctype.bench.bench.frappe.db.commit", new=MagicMock)

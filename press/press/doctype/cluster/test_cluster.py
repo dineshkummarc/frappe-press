@@ -18,6 +18,7 @@ from press.press.doctype.virtual_machine.virtual_machine import VirtualMachine
 from press.press.doctype.virtual_machine_image.virtual_machine_image import (
 	VirtualMachineImage,
 )
+from press.runner import Ansible
 from press.utils.test import foreground_enqueue_doc
 
 
@@ -98,6 +99,7 @@ class TestCluster(FrappeTestCase):
 		frappe.db.rollback()
 
 
+@patch.object(Ansible, "run", new=MagicMock)
 @patch.object(BaseServer, "run_press_job", new=MagicMock())
 @patch.object(VirtualMachine, "get_latest_ubuntu_image", new=lambda x: "ami-123")
 @patch.object(VirtualMachineImage, "wait_for_availability", new=MagicMock())
@@ -173,6 +175,7 @@ class TestPrivateCluster(TestCluster):
 		)
 
 
+@patch.object(Ansible, "run", new=MagicMock)
 @patch.object(BaseServer, "run_press_job", new=MagicMock())
 @patch.object(VirtualMachineImage, "wait_for_availability", new=MagicMock())
 @patch("press.press.doctype.cluster.cluster.frappe.db.commit", new=MagicMock())
