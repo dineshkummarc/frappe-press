@@ -37,7 +37,7 @@ if typing.TYPE_CHECKING:
 	from press.press.doctype.release_group.release_group import ReleaseGroup
 	from press.press.doctype.team.team import Team
 
-	AppInfo = TypedDict(  # noqa: UP013
+	AppInfo = TypedDict(  # type: ignore  # noqa: UP013
 		"AppInfo",
 		app=App,
 		source=AppSource,
@@ -386,7 +386,7 @@ def create_cache_test_release_group(app_info_list: list["AppInfo"], team: "Team"
 
 	# Set apps
 	for info in app_info_list:
-		value = dict(app=info["app"].name, source=info["source"].name)
+		value = dict(app=info["app"].name, source=info["source"].name)  # type: ignore
 		release_group.append("apps", value)
 
 	# Set BENCH_VERSION
@@ -442,4 +442,4 @@ def create_cache_test_apps(team: "Team") -> dict[str, "AppInfo"]:
 		release = create_test_app_release(source, hash)
 		apps[name] = dict(app=app, source=source, release=release)
 
-	return apps
+	return apps  # type: ignore
