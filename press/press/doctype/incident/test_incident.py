@@ -7,7 +7,7 @@ import typing
 import zoneinfo
 from contextlib import suppress
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
@@ -46,6 +46,7 @@ from press.press.doctype.prometheus_alert_rule.test_prometheus_alert_rule import
 from press.press.doctype.site.test_site import create_test_site
 from press.press.doctype.team.test_team import create_test_press_admin_team
 from press.press.doctype.telegram_message.telegram_message import TelegramMessage
+from press.runner import Ansible
 from press.utils.test import foreground_enqueue_doc
 
 if typing.TYPE_CHECKING:
@@ -140,6 +141,7 @@ def get_total_firing_and_resolved_for_resolved_incident(draw) -> tuple[int, int,
 @patch.object(AlertmanagerWebhookLog, "react", new=Mock())
 @patch("press.press.doctype.incident.incident.frappe.db.commit", new=Mock())
 @patch.object(AgentJob, "enqueue_http_request", new=Mock())
+@patch.object(Ansible, "run", new=MagicMock)
 @patch("press.press.doctype.site.site._change_dns_record", new=Mock())
 @patch("press.press.doctype.press_settings.press_settings.Client", new=MockTwilioClient)
 @patch("press.press.doctype.incident.incident.enqueue_doc", new=foreground_enqueue_doc)

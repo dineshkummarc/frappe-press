@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 import typing
 from unittest import skip
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
@@ -24,6 +24,7 @@ from press.press.doctype.team.test_team import (
 	create_test_press_admin_team,
 	create_test_team,
 )
+from press.runner import Ansible
 from press.utils.test import foreground_enqueue_doc
 
 if typing.TYPE_CHECKING:
@@ -74,6 +75,7 @@ def create_test_deploy_candidate_build(
 
 @patch("press.press.doctype.deploy_candidate.deploy_candidate.frappe.db.commit")
 @patch.object(AgentJob, "enqueue_http_request", new=Mock())
+@patch.object(Ansible, "run", new=MagicMock)
 class TestDeployCandidate(FrappeTestCase):
 	def setUp(self):
 		super().setUp()
