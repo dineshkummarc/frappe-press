@@ -23,6 +23,7 @@ class SiteGroupDeploy(Document):
 		cluster: DF.Link
 		provider: DF.Link | None
 		release_group: DF.Link | None
+		server: DF.Link | None
 		site: DF.Link | None
 		site_plan: DF.Link | None
 		status: DF.Literal[
@@ -42,6 +43,7 @@ class SiteGroupDeploy(Document):
 	dashboard_fields = ("status", "site", "release_group")
 
 	def before_insert(self):
+		self.check_if_team_can_create_site()
 		self.set_latest_version()
 		self.check_if_rg_or_site_exists()
 
@@ -61,6 +63,12 @@ class SiteGroupDeploy(Document):
 			return
 
 		self.version = frappe.db.get_value("Frappe Version", {"status": "stable"}, order_by="number desc")
+
+	def check_if_team_can_create_site(self):
+		team = frappe.get_doc("Team", self.team)
+		[allow_creation, why] = team.can_create_site()
+		if not allow_creation:
+			frappe.throw(why)
 
 	def check_if_rg_or_site_exists(self):
 		from press.press.doctype.site.site import Site
@@ -108,9 +116,8 @@ class SiteGroupDeploy(Document):
 
 		apps = [{"app": app.app, "source": app.source} for app in self.apps]
 
-		server = ""
-		if self.auto_provision_bench and self.provider:
-			server = self.get_optimal_server_for_private_bench()
+		if not self.server and self.auto_provision_bench and self.provider:
+			self.server = self.get_optimal_server_for_private_bench()
 
 		group = new_release_group(
 			title=self.subdomain,
@@ -118,7 +125,7 @@ class SiteGroupDeploy(Document):
 			apps=apps,
 			team=self.team,
 			cluster=self.cluster,
-			server=server if server else None,
+			server=self.server or None,
 		)
 
 		self.release_group = group.name
