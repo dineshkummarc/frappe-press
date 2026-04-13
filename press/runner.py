@@ -1,7 +1,6 @@
 import json
 import typing
 from collections.abc import Callable
-from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
@@ -27,6 +26,7 @@ from press.press.doctype.ansible_play.ansible_play import AnsiblePlay
 
 if typing.TYPE_CHECKING:
 	from press.press.doctype.agent_job.agent_job import AgentJob
+	from press.press.doctype.virtual_machine.virtual_machine import VirtualMachine
 
 
 def reconnect_on_failure():
@@ -168,7 +168,7 @@ class Ansible:
 		self.server = server
 		self.playbook = playbook
 		self.playbook_path = frappe.get_app_path("press", "playbooks", self.playbook)
-		self.host = f"{server.ip}:{port}"
+		self.host = server.ip if server.ip else server.private_ip
 		self.variables = variables or {}
 
 		constants.HOST_KEY_CHECKING = False
@@ -190,6 +190,8 @@ class Ansible:
 
 		self.sources = f"{self.host},"
 		self.inventory = InventoryManager(loader=self.loader, sources=self.sources)
+		self.inventory.get_host(self.host).set_variable("ansible_port", port)
+
 		self.variable_manager = VariableManager(loader=self.loader, inventory=self.inventory)
 
 		self.callback = AnsibleCallback()
@@ -324,8 +326,11 @@ class StepHandler:
 		step.attempt = 1 if not step.attempt else step.attempt + 1
 
 		# Try to sync status in every attempt
-		with suppress(Exception):
-			frappe.get_doc("Virtual Machine", virtual_machine).sync()
+		try:
+			virtual_machine_doc: "VirtualMachine" = frappe.get_doc("Virtual Machine", virtual_machine)
+			virtual_machine_doc.sync()
+		except Exception:
+			pass
 
 		machine_status = frappe.db.get_value("Virtual Machine", virtual_machine, "status")
 		step.status = Status.Running if machine_status != expected_status else Status.Success
