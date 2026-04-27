@@ -20,6 +20,7 @@
   "cluster",
   "admin_password",
   "additional_system_user_created",
+  "backup_timeout",
   "config_tab",
   "hide_config",
   "host_name",
@@ -745,6 +746,12 @@
    "read_only": 1
   },
   {
+   "default": "18000",
+   "fieldname": "backup_timeout",
+   "fieldtype": "Int",
+   "label": "Backup Timeout"
+  },
+  {
    "fieldname": "fatal_site_update",
    "fieldtype": "Link",
    "label": "Fatal Site Update",
@@ -799,7 +806,7 @@
   },
   {
    "group": "Related Documents",
-   "link_doctype": "ERPNext Site Settings",
+   "link_doctype": "Site Action",
    "link_fieldname": "site"
   },
   {
@@ -825,6 +832,11 @@
   {
    "group": "Related Documents",
    "link_doctype": "Physical Backup Restoration",
+   "link_fieldname": "site"
+  },
+  {
+   "group": "Related Documents",
+   "link_doctype": "ERPNext Site Settings",
    "link_fieldname": "site"
   }
  ],
