@@ -28,6 +28,7 @@ if typing.TYPE_CHECKING:
 ALLOWED_DOCTYPES = [
 	"Site",
 	"Site App",
+	"Site Action",
 	"Site Domain",
 	"Site Backup",
 	"Site Activity",
@@ -81,9 +82,14 @@ ALLOWED_DOCTYPES = [
 	"Site Database User",
 	"Press Settings",
 	"Mpesa Payment Record",
+	"Razorpay Mandate",
 	"Partner Certificate",
 	"Partner Payment Payout",
 	"Deploy Candidate Build",
+	"Partner Lead",
+	"Partner Lead Type",
+	"Lead Followup",
+	"Partner Consent",
 	"Account Request",
 	"Server Snapshot",
 	"Server Snapshot Recovery",
@@ -95,6 +101,9 @@ ALLOWED_DOCTYPES = [
 	"Partner Lead Origin",
 	"Auto Scale Record",
 	"Server Firewall",
+	"New Bench Queue",
+	"Partner Audit",
+	"Partner Non Conformance",
 ]
 
 whitelisted_methods = set()
@@ -166,7 +175,7 @@ def get_list(
 def get_list_query(
 	doctype: str,
 	meta: "Meta",
-	filters: dict,
+	filters,
 	valid_filters: frappe._dict,
 	valid_fields: list | None,
 	start: int,
@@ -174,12 +183,7 @@ def get_list_query(
 	order_by: str | None,
 ):
 	query = frappe.qb.get_query(
-		doctype,
-		filters=valid_filters,
-		fields=valid_fields,
-		offset=start,
-		limit=limit,
-		order_by=order_by,
+		doctype, filters=valid_filters, fields=valid_fields, offset=start, limit=limit, order_by=order_by
 	)
 
 	if meta.istable and frappe.get_meta(filters.get("parenttype")).has_field("team"):
