@@ -130,18 +130,6 @@ export default {
 				},
 			};
 		},
-		banner({ listResource: servers }) {
-			if (!servers.data?.length) {
-				return {
-					title: 'Learn how to create a new dedicated server',
-					button: {
-						label: 'Read docs',
-						variant: 'outline',
-						link: 'https://docs.frappe.io/cloud/servers/new',
-					},
-				};
-			}
-		},
 	},
 	detail: {
 		titleField: 'name',
@@ -294,25 +282,6 @@ export default {
 				},
 			},
 			{
-				label: 'Firewall',
-				icon: icon('shield'),
-				condition: (server) => {
-					return (
-						server.doc?.status !== 'Archived' && !server.doc?.is_self_hosted
-					);
-				},
-				route: 'firewall',
-				type: 'Component',
-				component: defineAsyncComponent(
-					() => import('../components/server/ServerFirewall.vue'),
-				),
-				props: (server) => {
-					return {
-						id: server.doc.name,
-					};
-				},
-			},
-			{
 				label: 'Sites',
 				icon: icon(LucideAppWindow),
 				condition: (server) => {
@@ -419,6 +388,21 @@ export default {
 							width: 0.5,
 						},
 					],
+					primaryAction({ documentResource: server }) {
+						if (server?.doc?.status !== 'Active') return {};
+						return {
+							label: 'New Site',
+							slots: {
+								prefix: icon('plus'),
+							},
+							onClick() {
+								router.push({
+									name: 'Server New Site',
+									params: { server: server.doc.name },
+								});
+							},
+						};
+					},
 				},
 			},
 			{
@@ -667,9 +651,7 @@ export default {
 									h(
 										defineAsyncComponent(
 											() =>
-												import(
-													'../components/server/ServerNewSnapshotDialog.vue'
-												),
+												import('../components/server/ServerNewSnapshotDialog.vue'),
 										),
 										{
 											server: server.name,
@@ -689,9 +671,7 @@ export default {
 								onClick() {
 									let ServerSnapshotDetailsDialog = defineAsyncComponent(
 										() =>
-											import(
-												'../components/server/ServerSnapshotDetailsDialog.vue'
-											),
+											import('../components/server/ServerSnapshotDetailsDialog.vue'),
 									);
 									renderDialog(
 										h(ServerSnapshotDetailsDialog, {
@@ -706,9 +686,7 @@ export default {
 								onClick() {
 									let ServerSnapshotRecoverSitesDialog = defineAsyncComponent(
 										() =>
-											import(
-												'../components/server/ServerSnapshotRecoverSitesDialog.vue'
-											),
+											import('../components/server/ServerSnapshotRecoverSitesDialog.vue'),
 									);
 									renderDialog(
 										h(ServerSnapshotRecoverSitesDialog, {
@@ -962,6 +940,25 @@ export default {
 					};
 				},
 			},
+			{
+				label: 'Firewall',
+				icon: icon('shield'),
+				condition: (server) => {
+					return (
+						server.doc?.status !== 'Archived' && !server.doc?.is_self_hosted
+					);
+				},
+				route: 'firewall',
+				type: 'Component',
+				component: defineAsyncComponent(
+					() => import('../components/server/ServerFirewall.vue'),
+				),
+				props: (server) => {
+					return {
+						id: server.doc.name,
+					};
+				},
+			},
 			tagTab('Server'),
 			{
 				label: 'Activity',
@@ -998,7 +995,7 @@ export default {
 						{
 							label: 'Description',
 							fieldname: 'reason',
-							class: 'text-gray-600',
+							class: 'text-ink-gray-6',
 						},
 						{
 							label: '',
